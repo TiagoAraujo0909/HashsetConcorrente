@@ -8,6 +8,7 @@ Foi-nos pedido que realizássemos pequenas classes concorrentes em Java para imp
 O projeto foi desenvolvido num grupo de dois elementos e o principal objetivo era explorar variadas formas de implementar “hash sets” usando a concorrência, mais especificamente utilizando ReentrantLocks, ReentrantReadWriteLocks e Software Transactional Memory (STM). Para isso, foi-nos fornecido o código base que incluía código para ajuda a compilação assim como exemplos de teste.
 Para além disso tivemos acesso a um ficheiro HSet0.java que servia como exemplo (e base) de como implementar esta estrutura de dados usando sincronização de threads.
 
+==================================
 
 Hash Sets
 
@@ -24,15 +25,24 @@ contains(e): testa se o elemento e pertence ao conjunto;
 waitFor(e): retorna imediatamente se e pertencer ao conjunto, caso contrário espera que o elemento e seja adicionado ao conjunto, bloqueando a thread em contexto;
 rehash(): redimensiona a tabela de hashing.
 
+==================================
 
 HSet1.java:
 
 O objetivo deste primeiro “exercício” foi trocar o uso da sincronização por ReentrantLock, para tal, tivemos de criar um lock ReentrantLock rl e uma condição Condition contElem (ligada ao rl) “globais” para além de fazer as seguintes alterações nas operações:
+
 size(): inicialmente a thread adquire o lock (rl.lock()) e só faz unlock (rl.unlock()) depois de retornar o valor size (inteiro que indica o tamanho da conjunto);
+
 add(e): inicialmente verificamos se o elemento a adicionar é nulo, se for o caso fazemos uma throw new IllegalArgumentException(), senão a thread adquire o lock (rl.lock()), adicionamos o elemento ao conjunto (se ele ainda não o tiver), usamos a condição contElem em signalAll() para acordar todas as threads que estejam à espera em waitFor(e), aumentamos o size, retornamos se o elemento foi adicionado ou não, e finalmente unlock (rl.unlock());
+
 remove(e): análogo ao anterior com a diferença de retirarmos o elemento em vez de o adicionar, de não precisarmos da condição e de diminuirmos o size em vez de o aumentar;
+
 contains(e): inicialmente a thread adquire o lock (rl.lock()), retorna se e pertence ao conjunto e faz unlock (rl.unlock());
-waitFor(e): inicialmente verificamos se o elemento é nulo, se for o caso fazemos uma throw new IllegalArgumentException(), senão a thread adquire o lock (rl.lock()). Retorna imediatamente se ele pertencer ao conjunto e faz unlock (rl.unlock()), caso contrário fica à espera do sinal que ele foi adicionado ou que foi interrompido com contElem.await() e quando isto se verificar ele liberta o lock;
+
+waitFor(e): inicialmente verificamos se o elemento é nulo, se for o caso fazemos uma throw new IllegalArgumentException(), senão a thread adquire o lock (rl.lock()). Retorna imediatamente se ele pertencer ao conjunto e faz unlock (rl.unlock()), caso contrário fica à espera do sinal que ele foi adicionado ou que foi interrompido com 
+
+contElem.await() e quando isto se verificar ele liberta o lock;
+
 rehash():  inicialmente a thread adquire o lock (rl.lock()), redimensiona a tabela de hashing, ajusta os seus elementos e faz unlock (rl.unlock());
 
 
