@@ -1,3 +1,4 @@
+!! Parte de Shell pertence ao docente Eduardo Marques @DCC FCUP !!
 
 Programação Concorrente 2022
 Projeto 2
